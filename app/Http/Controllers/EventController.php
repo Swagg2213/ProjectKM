@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,6 +33,7 @@ class EventController extends Controller
         $topEvents = Event::query()
             ->where('status', 'approved')
             ->withCount('favorites')
+            ->having('favorites_count', '>', 20)
             ->orderByDesc('favorites_count')
             ->take(10)
             ->get();
@@ -63,7 +65,7 @@ class EventController extends Controller
         
         Event::create($validatedData);
         
-        return redirect('/events');
+        return redirect('/events')->with('success', 'Event successfully created and is pending approval.');
     }
 
     public function showEdit($id)
@@ -98,7 +100,7 @@ class EventController extends Controller
 
         $event->update($validatedData);
         
-        return redirect('/events');
+        return redirect('/events')->with('success', 'Event successfully updated and is pending approval.');
     }
 
     public function showDetail(Event $event)
