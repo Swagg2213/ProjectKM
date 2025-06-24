@@ -26,6 +26,8 @@ return new class extends Migration
 
             $table->text('detail'); // Event Description
 
+            $table->boolean('isFavorite')->default(false);
+
             $table->timestamps();
         });
     }

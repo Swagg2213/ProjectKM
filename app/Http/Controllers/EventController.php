@@ -9,28 +9,33 @@ use Illuminate\Support\Facades\DB;
 class EventController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource, with filtering and searching.
      */
-    public function index()
+    public function show(Request $request)
     {
-        //
-    }
+        $query = Event::query();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($subQuery) use ($search) {
+                $subQuery->where('title', 'like', '%' . $search . '%')
+                         ->orWhere('kategori', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->where('kategori', $request->input('category'));
+        }
         
+        $events = $query->latest()->paginate(9);
+
+        return view('Event.eventView', ['events' => $events]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         //dd($request);
-         $validatedData = $request->validate([
+        $validatedData = $request->validate([
             'title'=>'required',
             'kategori'=>'required',
             'startTime'=>'required',
@@ -41,52 +46,57 @@ class EventController extends Controller
             'image'=>'required|image|mimes:jpg,png',
             'link'=>'required'
         ]);
-
-        //dd($validatedData);
         
         $validatedData['image'] = $request->file('image')->store('eventImage','public');
         
         Event::create($validatedData);
-
         
-        return redirect('/home');
+        return redirect('/events');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Event $event)
-    {
-        $events = DB::table('events')->paginate(5);
-        return view('Event.eventView',["events"=>$events]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Event $event)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Event $event)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Event $event)
-    {
-        //
-    }
     public function showDetail(Event $event)
     {
-
         return view('Event.eventDetail',["event"=>$event]);
+    }
+
+
+    // Ini fungsi buat toggle favorite
+    public function toggleFavorite($id)
+    {
+        try {
+            $event = Event::findOrFail($id);
+            $event->isFavorite = !$event->isFavorite;
+            $event->save();
+            
+            $message = $event->isFavorite ? 
+                'Event berhasil ditambahkan ke favorit!' : 
+                'Event berhasil dihapus dari favorit!';
+                
+            return redirect()->back()->with('success', $message);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengubah status favorit.');
+        }
+    }
+
+    // ini fungsi buat show semua event yang di fav (termasuk search & filter kategori e)
+    public function showFavorites(Request $request)
+    {
+        $query = Event::where('isFavorite', true);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($subQuery) use ($search) {
+                $subQuery->where('title', 'like', '%' . $search . '%')
+                        ->orWhere('kategori', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($request->filled('category')) {
+            $query->where('kategori', $request->input('category'));
+        }
+        
+        $events = $query->latest()->paginate(10);
+
+        return view('Event.eventFavorite', ['events' => $events]);
     }
 }

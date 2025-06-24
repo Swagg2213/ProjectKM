@@ -17,6 +17,7 @@ protected $fillable = [
         'endTime',
         'lokasi',
         'detail',
+        'isFavorite'
         ];
     
         protected $table= 'events';

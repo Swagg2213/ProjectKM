@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Event;
+use Illuminate\Support\Facades\View; 
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Share categories with all views
+        View::composer('*', function ($view) {
+            $view->with('categories', Event::select('kategori')->distinct()->orderBy('kategori')->pluck('kategori'));
+        });
     }
 }
