@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\EventApprovalController;
 
 Route::get('/', function () {
@@ -22,8 +23,6 @@ Route::get('/test', function () {
 Route::middleware(['require.login'])->group(function () {
 
     Route::middleware(['require.admin'])->group(function () {
-        // Admin routes can be added here
-        // Example: Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/admin/event-approval', [EventApprovalController::class, 'show'])->name('event.approval');
         Route::put('event/{id}/approve', [EventController::class, 'approve'])->name('event.approve');
         Route::put('event/{id}/reject', [EventController::class, 'reject'])->name('event.reject');
@@ -41,6 +40,7 @@ Route::middleware(['require.login'])->group(function () {
         })->name('event.add.form');
         Route::post("/addEvent", [EventController::class, 'store'])->name('event.add.post');
         Route::get('/profile/event-history', [ProfileController::class, 'showEventHistory'])->name('profile.eventHistory');
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     });
 
     Route::get('/events', [EventController::class, 'show'])->name('event.show');

@@ -13,7 +13,8 @@
 
 <body class="bg-gray-100">
 
-    <nav class="bg-white dark:bg-gray-800 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-700">
+    <nav
+        class="bg-white dark:bg-gray-800 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-700">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex items-center justify-between h-16">
                 <div class="flex-shrink-0">
@@ -59,9 +60,6 @@
                         </form>
                     </div>
                 @endif
-                {{-- DEBUG ONLY --}}
-
-
 
                 <div class="hidden md:block">
                     <div class="flex items-center space-x-2">
@@ -72,6 +70,23 @@
                                 <a href="{{ url('/addEvent') }}"
                                     class="h-16 px-3 inline-flex items-center text-sm font-medium border-b-4 transition-all duration-300 ease-in-out {{ Request::is('addEvent') ? 'text-yellow-400 border-yellow-400' : 'text-gray-500 dark:text-white border-transparent hover:text-yellow-400 hover:border-yellow-400' }}">Create
                                     Event</a>
+
+                                <a href="{{ route('notifications.index') }}"
+                                    class="relative h-16 px-3 inline-flex items-center text-sm font-medium border-b-4 transition-all duration-300 ease-in-out {{ Request::routeIs('notifications.index') ? 'text-yellow-400 border-yellow-400' : 'text-gray-500 dark:text-white border-transparent hover:text-yellow-400 hover:border-yellow-400' }}">
+                                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                        viewBox="0 0 16 16">
+                                        <path
+                                            d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z" />
+                                    </svg>
+                                    <span class="hidden lg:inline ml-1">Notifications</span>
+                                    @if (isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
+                                        <span class="absolute top-3 right-1 flex h-3 w-3">
+                                            <span
+                                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                                        </span>
+                                    @endif
+                                </a>
                             @endif
                             <a href="{{ route('event.favorite') }}"
                                 class="h-16 px-3 inline-flex items-center text-sm font-medium border-b-4 transition-all duration-300 ease-in-out {{ Request::routeIs('event.favorite') ? 'text-yellow-400 border-yellow-400' : 'text-gray-500 dark:text-white border-transparent hover:text-yellow-400 hover:border-yellow-400' }}">
@@ -144,52 +159,68 @@
 
         <div class="md:hidden hidden" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <div class="pt-2 pb-3">
-                    <form action="" method="GET" class="space-y-3">
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                <svg class="w-4 h-4 text-gray-400" aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
-                                </svg>
+                @if (Request::routeIs('event.show') || Request::routeIs('event.favorite'))
+                    <div class="pt-2 pb-3">
+                        <form action="" method="GET" class="space-y-3">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <svg class="w-4 h-4 text-gray-400" aria-hidden="true"
+                                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+                                    </svg>
+                                </div>
+                                <input type="text" name="search"
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    placeholder="Search Events..." value="{{ request('search') }}">
                             </div>
-                            <input type="text" name="search"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Search Events..." value="{{ request('search') }}">
-                        </div>
-                        <select name="category" onchange="this.form.submit()"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                            <option value="">Select category</option>
-                            <option value="Seminar" {{ request('category') == 'Seminar' ? 'selected' : '' }}>Seminar
-                            </option>
-                            <option value="Panitia" {{ request('category') == 'Panitia' ? 'selected' : '' }}>
-                                Kepanitiaan</option>
-                            <option value="Pengmas" {{ request('category') == 'Pengmas' ? 'selected' : '' }}>Pengmas
-                            </option>
-                            <option value="Bakmi" {{ request('category') == 'Bakmi' ? 'selected' : '' }}>Bakat Minat
-                            </option>
-                            <option value="Lainnya" {{ request('category') == 'Lainnya' ? 'selected' : '' }}>Lainnya
-                            </option>
-                        </select>
-                    </form>
-                </div>
+                            <select name="category" onchange="this.form.submit()"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                <option value="">Select category</option>
+                                <option value="Seminar" {{ request('category') == 'Seminar' ? 'selected' : '' }}>
+                                    Seminar
+                                </option>
+                                <option value="Panitia" {{ request('category') == 'Panitia' ? 'selected' : '' }}>
+                                    Kepanitiaan</option>
+                                <option value="Pengmas" {{ request('category') == 'Pengmas' ? 'selected' : '' }}>
+                                    Pengmas
+                                </option>
+                                <option value="Bakmi" {{ request('category') == 'Bakmi' ? 'selected' : '' }}>Bakat
+                                    Minat
+                                </option>
+                                <option value="Lainnya" {{ request('category') == 'Lainnya' ? 'selected' : '' }}>
+                                    Lainnya
+                                </option>
+                            </select>
+                        </form>
+                    </div>
+                @endif
                 @if (session('user_role') != 'Admin')
-                <a href="{{ route('event.show') }}"
-                    class="block px-3 py-2 rounded-md text-base font-medium {{ Request::routeIs('event.show') ? 'text-yellow-400 bg-gray-100 dark:bg-gray-700' : 'text-gray-600 dark:text-gray-300 hover:text-yellow-400 hover:bg-gray-50 dark:hover:bg-gray-700' }}">Home</a>
+                    <a href="{{ route('event.show') }}"
+                        class="block px-3 py-2 rounded-md text-base font-medium {{ Request::routeIs('event.show') ? 'text-yellow-400 bg-gray-100 dark:bg-gray-700' : 'text-gray-600 dark:text-gray-300 hover:text-yellow-400 hover:bg-gray-50 dark:hover:bg-gray-700' }}">Home</a>
                     @if (session('user_role') == 'Pembuat Event')
                         <a href="{{ url('/addEvent') }}"
-                        class="block px-3 py-2 rounded-md text-base font-medium {{ Request::is('addEvent') ? 'text-yellow-400 bg-gray-100 dark:bg-gray-700' : 'text-gray-600 dark:text-gray-300 hover:text-yellow-400 hover:bg-gray-50 dark:hover:bg-gray-700' }}">Create
-                        Event</a>
+                            class="block px-3 py-2 rounded-md text-base font-medium {{ Request::is('addEvent') ? 'text-yellow-400 bg-gray-100 dark:bg-gray-700' : 'text-gray-600 dark:text-gray-300 hover:text-yellow-400 hover:bg-gray-50 dark:hover:bg-gray-700' }}">Create
+                            Event</a>
+                        <a href="{{ route('notifications.index') }}"
+                            class="relative flex items-center justify-between px-3 py-2 rounded-md text-base font-medium {{ Request::routeIs('notifications.index') ? 'text-yellow-400 bg-gray-100 dark:bg-gray-700' : 'text-gray-600 dark:text-gray-300 hover:text-yellow-400 hover:bg-gray-50 dark:hover:bg-gray-700' }}">
+                            <span>Notifications</span>
+                            @if (isset($unreadNotificationsCount) && $unreadNotificationsCount > 0)
+                                <span class="relative flex h-3 w-3">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                                </span>
+                            @endif
+                        </a>
                     @endif
-                <a href="{{ route('event.favorite') }}"
-                    class="flex items-center px-3 py-2 rounded-md text-base font-medium {{ Request::routeIs('event.favorite') ? 'text-yellow-400 bg-gray-100 dark:bg-gray-700' : 'text-gray-600 dark:text-gray-300 hover:text-yellow-400 hover:bg-gray-50 dark:hover:bg-gray-700' }}">
-                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    Interested
-                </a>
+                    <a href="{{ route('event.favorite') }}"
+                        class="flex items-center px-3 py-2 rounded-md text-base font-medium {{ Request::routeIs('event.favorite') ? 'text-yellow-400 bg-gray-100 dark:bg-gray-700' : 'text-gray-600 dark:text-gray-300 hover:text-yellow-400 hover:bg-gray-50 dark:hover:bg-gray-700' }}">
+                        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        Interested
+                    </a>
                 @endif
 
                 <div class="border-t border-gray-200 dark:border-gray-700 pt-3 mt-3">
@@ -235,8 +266,6 @@
         @endif
         @yield('content')
     </div>
-
-
 
     <script>
         setTimeout(function() {

@@ -10,6 +10,7 @@ class EventReview extends Model
         'event_id',
         'user_id',
         'review',
+        'read_at', 
     ];
 
     protected $table = 'event_reviews';

@@ -59,12 +59,18 @@
                                                     $statusConfig = [
                                                         'Pending' => ['class' => 'bg-blue-500', 'text' => 'Pending'],
                                                         'Approved' => ['class' => 'bg-green-500', 'text' => 'Approved'],
-                                                        'On going' => ['class' => 'bg-yellow-500', 'text' => 'On going'],
-                                                        'Completed' => ['class' => 'bg-gray-600', 'text' => 'Completed'],
+                                                        'On going' => [
+                                                            'class' => 'bg-yellow-500',
+                                                            'text' => 'On going',
+                                                        ],
+                                                        'Completed' => [
+                                                            'class' => 'bg-gray-600',
+                                                            'text' => 'Completed',
+                                                        ],
                                                         'Rejected' => ['class' => 'bg-red-600', 'text' => 'Rejected'],
                                                         'Unknown' => ['class' => 'bg-black', 'text' => 'Unknown'],
                                                     ];
-                                                    
+
                                                     $statusKey = $event->dynamic_status;
                                                     $currentStatus =
                                                         $statusConfig[$statusKey] ?? $statusConfig['Unknown'];
@@ -87,8 +93,10 @@
                                                     </div>
                                                     <div class="flex-1 min-w-0">
                                                         <div class="flex justify-between items-start mb-1">
-                                                            <a href="{{ route('event.detail', $event->id) }}" class="flex-1">
-                                                                <h3 class="text-lg font-semibold text-gray-800 truncate pr-2 hover:text-yellow-500">
+                                                            <a href="{{ route('event.detail', $event->id) }}"
+                                                                class="flex-1 min-w-0">
+                                                                <h3
+                                                                    class="text-lg font-semibold text-gray-800 pr-2 hover:text-yellow-500 truncate">
                                                                     {{ $event->title }}
                                                                 </h3>
                                                             </a>
