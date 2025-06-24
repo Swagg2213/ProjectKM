@@ -2,65 +2,75 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\EventReview;
+use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model
 {
-        protected $fillable = [
-                'id',
-                'user_id',
-                'title',
-                'kategori',
-                'image',
-                'link',
-                'date',
-                'startTime',
-                'endTime',
-                'lokasi',
-                'detail',
-                'isFavorite',
-                'status'
-        ];
-        
-        protected $table= 'events';
-        protected $guarded =['id'];
+    protected $fillable = [
+        'id',
+        'user_id',
+        'title',
+        'kategori',
+        'image',
+        'link',
+        'date',
+        'startTime',
+        'endTime',
+        'lokasi',
+        'detail',
+        'status'
+    ];
+    
+    protected $table= 'events';
+    protected $guarded =['id'];
 
-        
-        public function getDynamicStatusAttribute()
-        {
-        if ($this->status === 'pending') {
-                return 'Pending';
-        }
+    public function getDynamicStatusAttribute()
+    {
+    if ($this->status === 'pending') {
+            return 'Pending';
+    }
 
-        if ($this->status === 'rejected') {
-                return 'Rejected';
-        }
+    if ($this->status === 'rejected') {
+            return 'Rejected';
+    }
 
-        if ($this->status === 'approved') {
-                $start = Carbon::parse($this->date . ' ' . $this->startTime);
-                $end = Carbon::parse($this->date . ' ' . $this->endTime);
-                $now = Carbon::now();
+    if ($this->status === 'approved') {
+            $start = Carbon::parse($this->date . ' ' . $this->startTime);
+            $end = Carbon::parse($this->date . ' ' . $this->endTime);
+            $now = Carbon::now();
 
-                if ($now->lt($start)) {
-                return 'Approved';
-                } elseif ($now->between($start, $end)) {
-                return 'On going';
-                } else {
-                return 'Completed';
-                }
-        }
+            if ($now->lt($start)) {
+            return 'Approved';
+            } elseif ($now->between($start, $end)) {
+            return 'On going';
+            } else {
+            return 'Completed';
+            }
+    }
 
-        return 'Unknown';
-        }
+    return 'Unknown';
+    }
 
-        public function user()
-        {
-                return $this->belongsTo(User::class, 'user_id');
-        }
+    public function user()
+    {
+            return $this->belongsTo(User::class, 'user_id');
+    }
 
-        public function eventReviews()
-        {
-                return $this->hasMany(EventReview::class, 'event_id');
-        }
+    public function eventReviews()
+    {
+            return $this->hasMany(EventReview::class, 'event_id');
+    }
+
+    public function favorites()
+    {
+        return $this->belongsToMany(User::class, 'favorites', 'event_id', 'user_id');
+    }
+
+    public function getIsFavoritedAttribute()
+    {
+        return $this->favorites()->where('user_id', auth()->id())->exists();
+    }
 }

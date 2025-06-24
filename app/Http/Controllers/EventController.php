@@ -13,35 +13,29 @@ class EventController extends Controller
      */
     public function show(Request $request)
     {
-
-        $topEvents = Event::query()
-            ->where('status', 'approved') 
-            ->withCount('favorites')
-            ->orderBy('favorites_count', 'desc')
-            ->take(10)
-            ->get();
-
-
-        // --- Main Query for Paginated & Filterable Events (your existing code) ---
-        $query = Event::query();
-
-        $query->where('status', 'approved');
+        $query = Event::query()->where('status', 'approved');
 
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($subQuery) use ($search) {
+            $query->where(function ($subQuery) use ($search) {
                 $subQuery->where('title', 'like', '%' . $search . '%')
-                        ->orWhere('kategori', 'like', '%' . $search . '%');
+                    ->orWhere('kategori', 'like', '%' . $search . '%');
             });
         }
 
         if ($request->filled('category')) {
             $query->where('kategori', $request->input('category'));
         }
-        
-        $events = $query->latest()->paginate(9);
 
-        // Pass both the main events list and the top events list to the view
+        $events = $query->withCount('favorites')->latest()->paginate(9);
+
+        $topEvents = Event::query()
+            ->where('status', 'approved')
+            ->withCount('favorites')
+            ->orderByDesc('favorites_count')
+            ->take(10)
+            ->get();
+
         return view('Event.eventView', [
             'events' => $events,
             'topEvents' => $topEvents,
@@ -112,42 +106,42 @@ class EventController extends Controller
         return view('Event.eventDetail',["event"=>$event]);
     }
 
-    // Ini fungsi buat toggle favorite
     public function toggleFavorite($id)
     {
-        try {
-            $event = Event::findOrFail($id);
-            $event->isFavorite = !$event->isFavorite;
-            $event->save();
-            
-            $message = $event->isFavorite ? 
-                'Event successfully added to Interested List!' : 
-                'Event successfully deleted from Interested List!';
-                
-            return redirect()->back()->with('success', $message);
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred while changing the favorite status.');
-        }
+        $user = Auth::user();
+        $user->favorites()->toggle($id);
+
+        $isFavorited = $user->favorites()->where('event_id', $id)->exists();
+
+        $message = $isFavorited ?
+            'Event successfully added to Interested List!' :
+            'Event successfully deleted from Interested List!';
+
+        return redirect()->back()->with('success', $message);
     }
 
-    // ini fungsi buat show semua event yang di fav (termasuk search & filter kategori e)
     public function showFavorites(Request $request)
     {
-        $query = Event::where('isFavorite', true);
+        $query = Auth::user()->favorites();
 
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($subQuery) use ($search) {
+            $query->where(function ($subQuery) use ($search) {
                 $subQuery->where('title', 'like', '%' . $search . '%')
-                        ->orWhere('kategori', 'like', '%' . $search . '%');
+                    ->orWhere('kategori', 'like', '%' . $search . '%');
             });
         }
 
         if ($request->filled('category')) {
             $query->where('kategori', $request->input('category'));
         }
-        
+
         $events = $query->latest()->paginate(10);
+        
+        $events->each(function ($event) {
+            $event->isFavorite = true;
+        });
+
 
         return view('Event.eventFavorite', ['events' => $events]);
     }

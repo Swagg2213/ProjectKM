@@ -29,7 +29,6 @@ return new class extends Migration
 
             $table->text('detail'); // Event Description
 
-            $table->boolean('isFavorite')->default(false);
             $table->enum('status', ['pending', 'rejected', 'approved'])->default('pending');
 
             $table->timestamps();
