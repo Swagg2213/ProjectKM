@@ -25,7 +25,6 @@
                     </div>
                 </div>
 
-                <!-- Main Content -->
                 <div class="lg:w-3/4">
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                         <div class="bg-gray-200 px-6 py-4 rounded-t-lg">
@@ -36,7 +35,6 @@
                                 @csrf
                                 @method('PUT')
 
-                                <!-- Profile Photo Section -->
                                 <div class="mb-8">
                                     <h3 class="text-lg font-medium text-gray-900 mb-6">Profile Photo</h3>
                                     <div class="flex justify-center">

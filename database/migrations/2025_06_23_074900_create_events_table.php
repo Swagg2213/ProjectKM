@@ -18,7 +18,7 @@ return new class extends Migration
 
             $table->string('title'); // Event Title
             $table->string('kategori'); // Event Category
-            $table->text('image'); // Upload poster/image
+            $table->text('image')->nullable(); // Upload poster/image
             $table->string('link'); // Event Link to Register
 
             $table->date('date'); // Start Date
