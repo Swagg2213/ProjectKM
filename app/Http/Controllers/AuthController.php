@@ -8,6 +8,17 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
+        if (auth()->check()) {
+            $user = auth()->user();
+            session(['user' => $user]);
+
+            if ($user->role->name === 'Admin') {
+                return redirect()->route('event.approval')->with('success', 'Welcome back, Admin ' . $user->name . '!');
+            } else {
+                return redirect()->route('event.show')->with('success', 'Welcome back, ' . $user->name . '!');
+            }
+        }
+
         return view('login.loginForm');
     }
 
@@ -19,19 +30,24 @@ class AuthController extends Controller
             $request->session()->regenerate();
             $user = auth()->user();
             session(['user' => $user]);
-            return redirect()->intended('events.show');
+            session(['user_role' => $user->role->name]);
+
+            if ($user->role->name === 'Admin') {
+                return redirect()->route('event.approval')->with('success', 'Welcome back, Admin ' . $user->name . '!');
+            } else {
+                return redirect()->route('event.show')->with('success', 'Welcome back, ' . $user->name . '!');
+            }
         }
 
-        return redirect()->back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+        return redirect()->back()
+                        ->with('error', 'The provided credentials do not match our records.');
     }
 
     public function logout()
     {
         auth()->logout();
-        session()->forget('user');
-        return redirect()->route('login.show')->with('message', 'You have been logged out successfully.');
+        session()->flush();
+        return redirect()->route('auth.login')->with('message', 'You have been logged out successfully.');
     }
     
 }

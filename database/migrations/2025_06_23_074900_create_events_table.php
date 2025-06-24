@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id'); // User ID of the event creator
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
             $table->string('title'); // Event Title
             $table->string('kategori'); // Event Category
             $table->text('image'); // Upload poster/image
@@ -27,6 +30,7 @@ return new class extends Migration
             $table->text('detail'); // Event Description
 
             $table->boolean('isFavorite')->default(false);
+            $table->enum('status', ['pending', 'rejected', 'approved'])->default('pending');
 
             $table->timestamps();
         });

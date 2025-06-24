@@ -38,8 +38,8 @@
                     <div class="p-4">
                         <div class="flex items-start mb-3">
                             <div class="text-center mr-4 flex-shrink-0">
-                                <div class="text-xs font-medium text-gray-500 uppercase">{{ \Carbon\Carbon::parse($event->startTime)->format('M') }}</div>
-                                <div class="text-2xl font-bold text-gray-800">{{ \Carbon\Carbon::parse($event->startTime)->format('d') }}</div>
+                                <div class="text-xs font-medium text-gray-500 uppercase">{{ \Carbon\Carbon::parse($event->date)->format('M') }}</div>
+                                <div class="text-2xl font-bold text-gray-800">{{ \Carbon\Carbon::parse($event->date)->format('d') }}</div>
                             </div>
                             <div class="flex-1 min-w-0">
                                 <h3 class="text-lg font-semibold text-gray-800 mb-1 truncate">{{ $event->title }}</h3>
@@ -56,25 +56,4 @@
             @endforeach
         </div>
     </div>
-
-    @if(session('success'))
-        <div id="success-message" class="fixed top-20 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div id="error-message" class="fixed top-20 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
-            {{ session('error') }}
-        </div>
-    @endif
-
-    <script>
-        setTimeout(function() {
-            const successMsg = document.getElementById('success-message');
-            const errorMsg = document.getElementById('error-message');
-            if (successMsg) successMsg.style.display = 'none';
-            if (errorMsg) errorMsg.style.display = 'none';
-        }, 3000);
-    </script>
 @endsection

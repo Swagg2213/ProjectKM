@@ -13,13 +13,25 @@ class EventController extends Controller
      */
     public function show(Request $request)
     {
+
+        $topEvents = Event::query()
+            ->where('status', 'approved') 
+            ->withCount('favorites')
+            ->orderBy('favorites_count', 'desc')
+            ->take(10)
+            ->get();
+
+
+        // --- Main Query for Paginated & Filterable Events (your existing code) ---
         $query = Event::query();
+
+        $query->where('status', 'approved');
 
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function($subQuery) use ($search) {
                 $subQuery->where('title', 'like', '%' . $search . '%')
-                         ->orWhere('kategori', 'like', '%' . $search . '%');
+                        ->orWhere('kategori', 'like', '%' . $search . '%');
             });
         }
 
@@ -29,12 +41,15 @@ class EventController extends Controller
         
         $events = $query->latest()->paginate(9);
 
-        return view('Event.eventView', ['events' => $events]);
+        // Pass both the main events list and the top events list to the view
+        return view('Event.eventView', [
+            'events' => $events,
+            'topEvents' => $topEvents,
+        ]);
     }
 
     public function store(Request $request)
     {
-        //dd($request);
         $validatedData = $request->validate([
             'title'=>'required',
             'kategori'=>'required',
@@ -46,10 +61,48 @@ class EventController extends Controller
             'image'=>'required|image|mimes:jpg,png',
             'link'=>'required'
         ]);
-        
+
+        $user = auth()->user();
+        $validatedData['user_id'] = $user->id; 
         $validatedData['image'] = $request->file('image')->store('eventImage','public');
+        $validatedData['status'] = 'pending';
         
         Event::create($validatedData);
+        
+        return redirect('/events');
+    }
+
+    public function showEdit($id)
+    {
+        $event = Event::findOrFail($id);
+        return view('Event.eventEdit', ['event' => $event]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $event = Event::findOrFail($id);
+        
+        $validatedData = $request->validate([
+            'title'=>'required',
+            'kategori'=>'required',
+            'startTime'=>'required',
+            'endTime'=>'required',
+            'lokasi'=>'required',
+            'detail'=>'required',
+            'date'=>'required',
+            'image'=>'nullable|image|mimes:jpg,png',
+            'link'=>'required'
+        ]);
+
+        if ($request->hasFile('image')) {
+            $validatedData['image'] = $request->file('image')->store('eventImage','public');
+        } else {
+            unset($validatedData['image']);
+        }
+
+        $validatedData['status'] = 'pending';
+
+        $event->update($validatedData);
         
         return redirect('/events');
     }
@@ -58,7 +111,6 @@ class EventController extends Controller
     {
         return view('Event.eventDetail',["event"=>$event]);
     }
-
 
     // Ini fungsi buat toggle favorite
     public function toggleFavorite($id)
@@ -69,12 +121,12 @@ class EventController extends Controller
             $event->save();
             
             $message = $event->isFavorite ? 
-                'Event berhasil ditambahkan ke favorit!' : 
-                'Event berhasil dihapus dari favorit!';
+                'Event successfully added to Interested List!' : 
+                'Event successfully deleted from Interested List!';
                 
             return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengubah status favorit.');
+            return redirect()->back()->with('error', 'An error occurred while changing the favorite status.');
         }
     }
 
@@ -98,5 +150,28 @@ class EventController extends Controller
         $events = $query->latest()->paginate(10);
 
         return view('Event.eventFavorite', ['events' => $events]);
+    }
+
+    public function approve($id)
+    {
+        return $this->updateStatus('approved', $id);
+    }
+
+    public function reject($id)
+    {
+        return $this->updateStatus('rejected', $id);
+    }
+
+    private function updateStatus($status, $id)
+    {
+        $event = Event::findOrFail($id);
+
+        if (in_array($status, ['pending', 'rejected', 'approved'])) {
+            $event->status = $status;
+            $event->save();
+            return redirect()->back()->with('success', 'Event status updated successfully.');
+        }
+
+        return redirect()->back()->with('error', 'Invalid status provided.');
     }
 }

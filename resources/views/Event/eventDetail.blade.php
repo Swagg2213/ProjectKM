@@ -4,12 +4,12 @@
 <div class="bg-gray-100">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
-        <div class="mb-8">
+        <div class="mb-8 pt-10">
             <a href='/events' class="inline-flex items-center text-gray-600 hover:text-orange-500 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 mr-2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                 </svg>
-                Back to All Events
+                Back
             </a>
         </div>
 

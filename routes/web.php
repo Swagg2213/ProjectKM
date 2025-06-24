@@ -4,42 +4,67 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\EventApprovalController;
+
+Route::get('/', function () {
+    return redirect()->route('auth.login');
+});
+
+Route::get('/login', [AuthController::class, 'showLogin'])->name('auth.login');
+Route::post('/login', [AuthController::class, 'login'])->name('auth.login.post');
 
 Route::get('/test', function () {
     return view('test');
 });
 
-//Home
-Route::get('/events', [EventController::class, 'show'])->name('event.show');
 
-//Create Event
-Route::get('/addEvent', function () {
-    return view('Event.eventform');
+Route::middleware(['require.login'])->group(function () {
+
+    Route::middleware(['require.admin'])->group(function () {
+        // Admin routes can be added here
+        // Example: Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/admin/event-approval', [EventApprovalController::class, 'show'])->name('event.approval');
+        Route::put('event/{id}/approve', [EventController::class, 'approve'])->name('event.approve');
+        Route::put('event/{id}/reject', [EventController::class, 'reject'])->name('event.reject');
+        Route::get('event/{id}/review', [EventApprovalController::class, 'reviewEvent'])->name('event.review.form');
+        Route::post('event/{id}/review', [EventApprovalController::class, 'sendReviewEvent'])->name('event.review');
+    });
+
+    Route::middleware(['require.mahasiswa'])->group(function () {
+
+    });
+
+    Route::middleware(['require.pembuatEvent'])->group(function () {
+        Route::get('/addEvent', function () {
+            return view('Event.eventForm');
+        })->name('event.add.form');
+        Route::post("/addEvent", [EventController::class, 'store'])->name('event.add.post');
+        Route::get('/profile/event-history', [ProfileController::class, 'showEventHistory'])->name('profile.eventHistory');
+    });
+
+    Route::get('/events', [EventController::class, 'show'])->name('event.show');
+    Route::get('/event/{event:id}',[EventController::class,'showDetail'])->name('event.detail');
+    Route::get('/event/{event:id}/edit', [EventController::class, 'showEdit'])->name('event.edit.form');
+    Route::put('/event/{event:id}/edit', [EventController::class, 'update'])->name('event.update');
+    Route::post('/event/{id}/toggle-favorite', [EventController::class, 'toggleFavorite'])->name('event.toggleFavorite');
+    Route::get('/favorite', [EventController::class, 'showFavorites'])->name('event.favorite');
+
+    
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 });
-Route::post("/addEvent", [EventController::class, 'store'])->name('event.add');
-
-// Detail Event
-Route::get('/event/{event:id}',[EventController::class,'showDetail'])->name('event.detail');
-
-// Toggle Favorite
-Route::post('/event/{id}/toggle-favorite', [EventController::class, 'toggleFavorite'])->name('event.toggleFavorite');
-
-// Halaman Favorite
-Route::get('/favorite', [EventController::class, 'showFavorites'])->name('event.favorite');
-
-Route::get('/login', [AuthController::class, 'showLogin'])->name('auth.login');
 
 
-// Redirect kalau user ke url / maka akan langsung diarahkan ke /events
-Route::get('/', function () {
-    return redirect()->route('event.show');
-});
-
+// Redirect for old '/' route, commented out as it's replaced by the redirect to login
 // Route::get('/', function () {
-//     return redirect()->route('auth.login');
+//     return redirect()->route('event.show');
 // });
 
 
-// Route::get('/auth-google-redirect',[Controller::class,'google_redirect'])
-// Route::get('/auth-google-callback',[Controller::class,'google_callback'])
+// Google Authentication routes (can be placed outside the protected group)
+// Route::get('/auth-google-redirect',[Controller::class,'google_redirect']);
+// Route::get('/auth-google-callback',[Controller::class,'google_callback']);
 
