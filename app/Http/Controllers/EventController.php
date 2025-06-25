@@ -10,25 +10,17 @@ use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
-public function show(Request $request)
+    public function show(Request $request)
     {
-        $now = Carbon::now();
-
         $query = Event::query()
             ->where('status', 'approved')
-            ->where(function ($dateQuery) use ($now) {
-                $dateQuery->where('date', '>', $now->toDateString())
-                    ->orWhere(function ($timeQuery) use ($now) {
-                        $timeQuery->where('date', $now->toDateString())
-                                  ->where('endTime', '>', $now->toTimeString());
-                    });
-            });
+            ->upcoming();
 
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($subQuery) use ($search) {
                 $subQuery->where('title', 'like', '%' . $search . '%')
-                         ->orWhere('kategori', 'like', '%' . $search . '%');
+                        ->orWhere('kategori', 'like', '%' . $search . '%');
             });
         }
 
@@ -40,13 +32,7 @@ public function show(Request $request)
 
         $topEvents = Event::withCount('favorites')
             ->where('status', 'approved')
-            ->where(function ($dateQuery) use ($now) {
-                $dateQuery->where('date', '>', $now->toDateString())
-                    ->orWhere(function ($timeQuery) use ($now) {
-                        $timeQuery->where('date', $now->toDateString())
-                                  ->where('endTime', '>', $now->toTimeString());
-                    });
-            })
+            ->upcoming()
             ->get()
             ->filter(function ($event) {
                 return $event->favorites_count > 20;
@@ -59,7 +45,6 @@ public function show(Request $request)
             'topEvents' => $topEvents,
         ]);
     }
-
     public function store(Request $request)
     {
         $validatedData = $request->validate([

@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\EventReview;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 
 class Event extends Model
 {
@@ -75,5 +77,19 @@ class Event extends Model
     public function getIsFavoritedAttribute()
     {
         return $this->favorites()->where('user_id', auth()->id())->exists();
+    }
+
+    public function scopeUpcoming(Builder $query): Builder
+    {
+        $now = Carbon::now();
+
+        return $query->where(function ($dateQuery) use ($now) {
+            $dateQuery->where('date', '>', $now->toDateString())
+
+                ->orWhere(function ($timeQuery) use ($now) {
+                    $timeQuery->where('date', $now->toDateString())
+                              ->where('startTime', '>', $now->toTimeString());
+                });
+        });
     }
 }
