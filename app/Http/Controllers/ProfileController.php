@@ -59,7 +59,6 @@ class ProfileController extends Controller
 
         $userId = $user->id;
         $user = User::find($userId);
-
         $events = $user->events()->latest()->paginate(10);
         
         return view('Profile.eventHistoryView', compact('events'));

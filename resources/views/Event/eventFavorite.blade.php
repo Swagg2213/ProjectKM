@@ -51,9 +51,9 @@
                             <div class="flex items-start mb-3">
                                 <div class="text-center mr-4 flex-shrink-0">
                                     <div class="text-xs font-medium text-gray-500 uppercase">
-                                        {{ \Carbon\Carbon::parse($event->startTime)->format('M') }}</div>
+                                        {{ \Carbon\Carbon::parse($event->date)->format('M') }}</div>
                                     <div class="text-2xl font-bold text-gray-800">
-                                        {{ \Carbon\Carbon::parse($event->startTime)->format('d') }}</div>
+                                        {{ \Carbon\Carbon::parse($event->date)->format('d') }}</div>
                                 </div>
                                 <div class="flex-1 min-w-0">
                                     <h3 class="text-lg font-semibold text-gray-800 mb-1 truncate">{{ $event->title }}</h3>

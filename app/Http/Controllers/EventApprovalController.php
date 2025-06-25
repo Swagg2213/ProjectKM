@@ -18,7 +18,6 @@ public function show()
                            ->latest('updated_at')
                            ->paginate(10, ['*'], 'reviewed_page');
 
-    // Pass both paginated collections to the view.
     return view('EventApproval.eventApproval', compact('events', 'reviewedEvents'));
 }
 

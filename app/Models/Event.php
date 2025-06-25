@@ -26,33 +26,36 @@ class Event extends Model
     
     protected $table= 'events';
     protected $guarded =['id'];
+    protected $casts = [
+        'date' => 'datetime',
+    ];
 
-    public function getDynamicStatusAttribute()
-    {
-    if ($this->status === 'pending') {
-            return 'Pending';
-    }
+        public function getDynamicStatusAttribute()
+        {
+                if ($this->status === 'pending') {
+                        return 'Pending';
+                }
 
-    if ($this->status === 'rejected') {
-            return 'Rejected';
-    }
+                if ($this->status === 'rejected') {
+                        return 'Rejected';
+                }
 
-    if ($this->status === 'approved') {
-            $start = Carbon::parse($this->date . ' ' . $this->startTime);
-            $end = Carbon::parse($this->date . ' ' . $this->endTime);
-            $now = Carbon::now();
+                if ($this->status === 'approved') {
+                        $start = $this->date->copy()->setTimeFromTimeString($this->startTime);
+                        $end = $this->date->copy()->setTimeFromTimeString($this->endTime);
+                        $now = Carbon::now();
 
-            if ($now->lt($start)) {
-            return 'Approved';
-            } elseif ($now->between($start, $end)) {
-            return 'On going';
-            } else {
-            return 'Completed';
-            }
-    }
+                        if ($now->lt($start)) {
+                        return 'Approved';
+                        } elseif ($now->between($start, $end, true)) {
+                        return 'On going';
+                        } else { 
+                        return 'Completed';
+                        }
+                }
 
-    return 'Unknown';
-    }
+                return 'Unknown';
+        }
 
     public function user()
     {
