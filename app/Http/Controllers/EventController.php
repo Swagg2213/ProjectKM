@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
-    public function show(Request $request)
+public function show(Request $request)
     {
         $now = Carbon::now();
 
@@ -20,7 +20,7 @@ class EventController extends Controller
                 $dateQuery->where('date', '>', $now->toDateString())
                     ->orWhere(function ($timeQuery) use ($now) {
                         $timeQuery->where('date', $now->toDateString())
-                                  ->where('startTime', '>', $now->toTimeString());
+                                  ->where('endTime', '>', $now->toTimeString());
                     });
             });
 
@@ -44,10 +44,10 @@ class EventController extends Controller
                 $dateQuery->where('date', '>', $now->toDateString())
                     ->orWhere(function ($timeQuery) use ($now) {
                         $timeQuery->where('date', $now->toDateString())
-                                  ->where('startTime', '>', $now->toTimeString());
+                                  ->where('endTime', '>', $now->toTimeString());
                     });
             })
-            ->get() 
+            ->get()
             ->filter(function ($event) {
                 return $event->favorites_count > 20;
             })
