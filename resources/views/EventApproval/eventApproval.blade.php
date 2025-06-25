@@ -4,7 +4,6 @@
 <div class="container mx-auto pt-16 px-4">
     <h1 class="text-center font-bold mt-10 text-4xl underline underline-offset-8">Admin Approval Page</h1>
 
-    {{-- Pending Events Table --}}
     <div class="mt-10 bg-white shadow-lg rounded-lg overflow-hidden">
         <div class="bg-gray-800 text-white sticky top-0 z-10">
             <div class="grid grid-cols-4 md:grid-cols-4 gap-4 px-6 py-4 font-semibold text-sm uppercase tracking-wide">
@@ -66,7 +65,6 @@
     </div>
     @endif
 
-    {{-- Reviewed Events Table --}}
     <h2 class="text-center font-bold mt-20 text-3xl underline underline-offset-8">Reviewed Events</h2>
     <div class="mt-10 bg-white shadow-lg rounded-lg overflow-hidden">
         <div class="bg-gray-700 text-white sticky top-0 z-10">

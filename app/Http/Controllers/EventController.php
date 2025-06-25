@@ -2,25 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
-    /**
-     * Display a listing of the resource, with filtering and searching.
-     */
     public function show(Request $request)
     {
-        $query = Event::query()->where('status', 'approved');
+        $now = Carbon::now();
+
+        $query = Event::query()
+            ->where('status', 'approved')
+            ->where(function ($dateQuery) use ($now) {
+                $dateQuery->where('date', '>', $now->toDateString())
+                    ->orWhere(function ($timeQuery) use ($now) {
+                        $timeQuery->where('date', $now->toDateString())
+                                  ->where('startTime', '>', $now->toTimeString());
+                    });
+            });
 
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($subQuery) use ($search) {
                 $subQuery->where('title', 'like', '%' . $search . '%')
-                    ->orWhere('kategori', 'like', '%' . $search . '%');
+                         ->orWhere('kategori', 'like', '%' . $search . '%');
             });
         }
 
@@ -32,13 +40,19 @@ class EventController extends Controller
 
         $topEvents = Event::withCount('favorites')
             ->where('status', 'approved')
-            ->get()
+            ->where(function ($dateQuery) use ($now) {
+                $dateQuery->where('date', '>', $now->toDateString())
+                    ->orWhere(function ($timeQuery) use ($now) {
+                        $timeQuery->where('date', $now->toDateString())
+                                  ->where('startTime', '>', $now->toTimeString());
+                    });
+            })
+            ->get() 
             ->filter(function ($event) {
                 return $event->favorites_count > 20;
             })
             ->sortByDesc('favorites_count')
             ->take(10);
-
 
         return view('Event.eventView', [
             'events' => $events,

@@ -57,14 +57,14 @@
                                                 </a>
                                                 @php
                                                     $statusConfig = [
-                                                        'Pending' => ['class' => 'bg-blue-500', 'text' => 'Pending'],
+                                                        'Pending' => ['class' => 'bg-blue-500', 'text' => 'Pending Approval'],
                                                         'Approved' => ['class' => 'bg-green-500', 'text' => 'Approved'],
                                                         'On going' => [
                                                             'class' => 'bg-yellow-500',
                                                             'text' => 'On going',
                                                         ],
                                                         'Completed' => [
-                                                            'class' => 'bg-gray-600',
+                                                            'class' => 'bg-green-500',
                                                             'text' => 'Completed',
                                                         ],
                                                         'Rejected' => ['class' => 'bg-red-600', 'text' => 'Rejected'],
