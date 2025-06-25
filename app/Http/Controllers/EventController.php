@@ -30,13 +30,15 @@ class EventController extends Controller
 
         $events = $query->withCount('favorites')->latest()->paginate(9);
 
-        $topEvents = Event::query()
+        $topEvents = Event::withCount('favorites')
             ->where('status', 'approved')
-            ->withCount('favorites')
-            ->having('favorites_count', '>', 20)
-            ->orderByDesc('favorites_count')
-            ->take(10)
-            ->get();
+            ->get()
+            ->filter(function ($event) {
+                return $event->favorites_count > 20;
+            })
+            ->sortByDesc('favorites_count')
+            ->take(10);
+
 
         return view('Event.eventView', [
             'events' => $events,
