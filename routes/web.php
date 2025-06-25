@@ -64,7 +64,7 @@ Route::middleware(['require.login'])->group(function () {
 // });
 
 
-// Google Authentication routes (can be placed outside the protected group)
-// Route::get('/auth-google-redirect',[Controller::class,'google_redirect']);
-// Route::get('/auth-google-callback',[Controller::class,'google_callback']);
+// Google Authentication routes
+Route::get('/auth/google/redirect/{role}', [AuthController::class, 'redirectToGoogle'])->name('auth.google.redirect');
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
